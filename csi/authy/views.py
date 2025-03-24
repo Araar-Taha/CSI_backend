@@ -38,13 +38,14 @@ class RegisterView(APIView):
                 Participant.objects.create(user=user)
             elif user_type == 'Woofer':
                 Woofer.objects.create(user=user)
-
+            return Response(serializer.data, status=status.HTTP_201_CREATED)     
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class LoginView(APIView):
     permission_classes = [AllowAny]  # Allow access to anyone
 
     def post(self, request, *args, **kwargs):
-        print(request.user)
+        print(request.user.username)
 
         username = request.data.get('username')
         password = request.data.get('password')
@@ -60,6 +61,7 @@ class LoginView(APIView):
 
         if not user.check_password(password):
             raise AuthenticationFailed('Incorrect password!')
+        
 
         refresh = RefreshToken.for_user(user)
         access = refresh.access_token
@@ -76,7 +78,7 @@ class LoginView(APIView):
             'user-type': user.user_type
         }
 
-        return response 
+        return response  
  
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]  # Ensure only authenticated users can log out

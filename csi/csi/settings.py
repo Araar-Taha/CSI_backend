@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -47,6 +48,8 @@ INSTALLED_APPS = [
     'sales',
     #packages
     'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -131,3 +134,32 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# DATABASES = {
+#   'default': {
+#     'ENGINE': 'django.db.backends.postgresql',
+#     'NAME': 'A mettre',
+#     'USER': 'A mettre',
+#     'PASSWORD': 'A mettre',
+#     'HOST': 'plg-broker.ad.univ-lorraine.fr',
+#     'PORT': '5432',
+    
+#   }
+# }  
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 3
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Set access token expiration time
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # Set refresh token expiration time
+    'ROTATE_REFRESH_TOKENS': False,  # Set to True if you want to rotate refresh tokens
+    'BLACKLIST_AFTER_ROTATION': True,  # Set to True if you want to blacklist the old refresh token
+    'ALGORITHM': 'HS256',  # Algorithm used for signing
+    'SIGNING_KEY': SECRET_KEY,  # Use your Django secret key to sign JWTs
+    'AUTH_HEADER_TYPES': ('Bearer',),  # Ensure the token type in the Authorization header is "Bearer"
+}

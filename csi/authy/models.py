@@ -40,6 +40,7 @@ class Woofer(models.Model):
     participant_field = models.CharField(max_length=255)
     dateDeNaissance = models.DateField(null=True)
     dateDebutSejour = models.DateField(null=True)
+    dateFinSejour = models.DateField(null=True)
     taches = models.ManyToManyField(Tache, related_name='woofers')
 
 
