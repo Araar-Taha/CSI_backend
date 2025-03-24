@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #apps
     'authy',
+    'tasks',
+    'workshop',
     #packages
     'rest_framework',
 ]

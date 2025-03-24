@@ -37,6 +37,7 @@ class Woofer(models.Model):
     participant_field = models.CharField(max_length=255)
     dateDeNaissance = models.DateField()
     dateDebutSejour = models.DateField()
+    taches = models.ManyToManyField('tasks.Tache', related_name='woofers')
 
     def __str__(self):
         return self.user.username
