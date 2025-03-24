@@ -38,8 +38,8 @@ class Woofer(models.Model):
     user = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name='woofer_instance')
     # Add additional fields specific to Woofer
     participant_field = models.CharField(max_length=255)
-    dateDeNaissance = models.DateField()
-    dateDebutSejour = models.DateField()
+    dateDeNaissance = models.DateField(null=True)
+    dateDebutSejour = models.DateField(null=True)
     taches = models.ManyToManyField(Tache, related_name='woofers')
 
 

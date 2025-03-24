@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'authy',
     'tasks',
     'workshop',
+    'sales',
     #packages
     'rest_framework',
 ]
