@@ -1,4 +1,6 @@
 from django.db import models
+from workshop.models import Atelier
+from tasks.models import Tache
 
 # Create your models here.
 from django.db import models
@@ -14,7 +16,7 @@ class Utilisateur(AbstractUser):
     #we just need to add the user-type attribute
     woofer = models.OneToOneField("Woofer", null=True, blank=True, on_delete=models.CASCADE)
     participant = models.OneToOneField("Participant", null=True, blank=True, on_delete=models.CASCADE)
-    user_type = models.CharField(max_length=12, choices=USER_TYPE_CHOICES, default='User',)
+    user_type = models.CharField(max_length=12, choices=USER_TYPE_CHOICES, default='Participant',)
     #username is already included in REQUIRED_FIELDS so i removed it
     REQUIRED_FIELDS = ['password','user_type']
     def __str__(self):
@@ -25,6 +27,7 @@ class Participant(models.Model):
     user = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name='participant_instance')
     # Add additional fields specific to Participant
     # to add later:atelier FK
+    ateliers = models.ManyToManyField(Atelier, related_name='participants', blank=True)
 
     def __str__(self):
         return self.user.username
@@ -37,7 +40,8 @@ class Woofer(models.Model):
     participant_field = models.CharField(max_length=255)
     dateDeNaissance = models.DateField()
     dateDebutSejour = models.DateField()
-    taches = models.ManyToManyField('tasks.Tache', related_name='woofers')
+    taches = models.ManyToManyField(Tache, related_name='woofers')
+
 
     def __str__(self):
         return self.user.username
