@@ -142,7 +142,10 @@ class AddWooferView(APIView):
 
 class ModifyWooferView(APIView):
     permission_classes = [IsAuthenticated,IsAdmin]  
-    def post(self, request, username):
+    def post(self, request):
+        username = request.data.get("username")
+        if not username:
+            return Response({"error": "Le champ 'username' est requis."}, status=status.HTTP_400_BAD_REQUEST)
         
         utilisateur = get_object_or_404(Utilisateur, username=username)
 
@@ -159,7 +162,12 @@ class ModifyWooferView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class DeleteUserView(APIView):
-    def delete(self, request, username, *args, **kwargs):
+    permission_classes = [IsAuthenticated,IsAdmin] 
+    def delete(self, request, *args, **kwargs):
+        username = request.data.get("username")
+        if not username:
+            return Response({"error": "Le champ 'username' est requis."}, status=status.HTTP_400_BAD_REQUEST)
+        
         utilisateur = get_object_or_404(Utilisateur, username=username)
         # Assure que la suppression est atomique pour que les woofer et participants sont supprimés
         with transaction.atomic():  
