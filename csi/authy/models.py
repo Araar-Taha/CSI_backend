@@ -42,7 +42,7 @@ class Woofer(models.Model):
     dateDebutSejour = models.DateField(null=True)
     dateFinSejour = models.DateField(null=True)
     taches = models.ManyToManyField(Tache,null=True, related_name='woofers')
-
-
     def __str__(self):
         return self.user.username
+    
+    

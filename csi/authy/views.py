@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from .serializers import UserSerializer,WooferSerializer
@@ -9,6 +9,7 @@ from rest_framework.decorators import action
 from django.conf import settings
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from django.db import transaction
 # permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from authy.CustomPermission import IsAdmin
@@ -19,7 +20,7 @@ from authy.CustomPermission import IsAdmin
 # Create your views here.
 
 class RegisterView(APIView):
-    permission_classes = [AllowAny]  # You can update this to any other permission later
+    permission_classes = [AllowAny] 
 
     def post(self, request):
         user_type = request.data.get('user_type')
@@ -118,7 +119,7 @@ class AddWooferView(APIView):
         user_serializer = UserSerializer(data=user_data)
         
         if user_serializer.is_valid():
-            user = user_serializer.save()  # Save the user instance
+            user = user_serializer.save()
             
             # Extract woofer-specific data from the request
             woofer_data = {
@@ -139,3 +140,29 @@ class AddWooferView(APIView):
         else:
             return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class ModifyWooferView(APIView):
+    permission_classes = [IsAuthenticated,IsAdmin]  
+    def post(self, request, username):
+        
+        utilisateur = get_object_or_404(Utilisateur, username=username)
+
+        # Vérifier si l'utilisateur est bien un Woofer
+        if not hasattr(utilisateur, 'woofer_instance'):
+            return Response({"error": "L'utilisateur n'est pas un Woofer."}, status=status.HTTP_400_BAD_REQUEST)
+        # Récupération de l'instance Woofer associée
+        woofer = utilisateur.woofer_instance  
+        serializer = WooferSerializer(woofer, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class DeleteUserView(APIView):
+    def delete(self, request, username, *args, **kwargs):
+        utilisateur = get_object_or_404(Utilisateur, username=username)
+        # Assure que la suppression est atomique pour que les woofer et participants sont supprimés
+        with transaction.atomic():  
+            utilisateur.delete()
+
+        return Response({"message": "Utilisateur supprimé avec succès"}, status=status.HTTP_204_NO_CONTENT)
