@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Utilisateur
+from .models import Utilisateur,Woofer
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,3 +16,9 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+    
+class WooferSerializer(serializers.ModelSerializer):
+      class Meta:
+        model = Woofer 
+        fields ='__all__'
+          

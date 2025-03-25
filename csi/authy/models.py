@@ -37,11 +37,11 @@ class Participant(models.Model):
 class Woofer(models.Model):
     user = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name='woofer_instance')
     # Add additional fields specific to Woofer
-    participant_field = models.CharField(max_length=255)
+    # participant_field = models.CharField(max_length=255)
     dateDeNaissance = models.DateField(null=True)
     dateDebutSejour = models.DateField(null=True)
     dateFinSejour = models.DateField(null=True)
-    taches = models.ManyToManyField(Tache, related_name='woofers')
+    taches = models.ManyToManyField(Tache,null=True, related_name='woofers')
 
 
     def __str__(self):

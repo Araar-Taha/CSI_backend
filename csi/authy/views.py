@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
-from .serializers import UserSerializer
+from .serializers import UserSerializer,WooferSerializer
 from .models import Utilisateur,Participant,Woofer
 from rest_framework.viewsets import ViewSet
 from rest_framework.views import APIView
@@ -9,7 +9,9 @@ from rest_framework.decorators import action
 from django.conf import settings
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+# permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from authy.CustomPermission import IsAdmin
 
 # TOKEN_EXPIRATION_ACCESS = 600
 # TOKEN_EXPIRATION_REFRESH = 1440
@@ -81,7 +83,7 @@ class LoginView(APIView):
         return response  
  
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]  # Ensure only authenticated users can log out
+    permission_classes = [IsAuthenticated,IsAdmin]  # Ensure only authenticated users can log out
 
     def post(self, request, *args, **kwargs):
         response = Response()
@@ -94,4 +96,46 @@ class LogoutView(APIView):
             'message': 'success'
         }
 
-        return response       
+        return response 
+
+
+
+class AddWooferView(APIView):
+    permission_classes = [IsAuthenticated,IsAdmin]  
+
+    def post(self, request, *args, **kwargs):
+        
+        user_data = {
+            'username': request.data.get('username'),
+            'password': request.data.get('password'),
+            'first_name': request.data.get('first_name', ''),  
+            'last_name': request.data.get('last_name', ''),  
+            'email': request.data.get('email', ''),
+            "user_type": "Woofer",    
+        }
+        
+        # Create and validate the user with the provided data
+        user_serializer = UserSerializer(data=user_data)
+        
+        if user_serializer.is_valid():
+            user = user_serializer.save()  # Save the user instance
+            
+            # Extract woofer-specific data from the request
+            woofer_data = {
+                'user': user.id,
+                'dateDeNaissance': request.data.get('dateDeNaissance'),
+                'dateDebutSejour': request.data.get('dateDebutSejour'),
+                'dateFinSejour': request.data.get('dateFinSejour'),
+            }
+
+            # Create and validate the Woofer instance with the given data
+            woofer_serializer = WooferSerializer(data=woofer_data)
+
+            if woofer_serializer.is_valid():
+                woofer_serializer.save()  # Save the Woofer instance
+                return Response(woofer_serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(woofer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
